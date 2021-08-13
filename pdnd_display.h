@@ -17,10 +17,12 @@ typedef struct {
     const uint8_t *data;
 } pdnd_screen;
 
+extern pdnd_display *pdnd_global_display;
+
 void pdnd_display_initialize();
 void pdnd_display_create(pdnd_display *display);
 void pdnd_display_screen(pdnd_display *d, pdnd_screen *s);
 void pdnd_display_printf(pdnd_display *d, uint8_t x, uint8_t y, const char *format, va_list args);
 void cls(bool display);
 void pprintf(const char *format, ...);
-void pprintfxy(uint8_t x, uint8_t y, const char *format, va_list args);
+void pprintfxy(uint8_t x, uint8_t y, const char *format, ...);

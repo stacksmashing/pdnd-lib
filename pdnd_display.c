@@ -10,15 +10,15 @@
 #define PIN_SDA 20
 #define PIN_SCL 21
 
-pdnd_display *global_display = NULL;
+pdnd_display *pdnd_global_display = NULL;
 
 void pdnd_display_initialize() {
-    global_display = malloc(sizeof(pdnd_display));
-    if(global_display == NULL) {
+    pdnd_global_display = malloc(sizeof(pdnd_display));
+    if(pdnd_global_display == NULL) {
         return;
     }
 
-    pdnd_display_create(global_display);
+    pdnd_display_create(pdnd_global_display);
 }
 
 void pdnd_display_create(pdnd_display *display) {
@@ -64,22 +64,25 @@ void pdnd_display_printf(pdnd_display *d, uint8_t x, uint8_t y, const char *form
 
 // Global helper functions
 void cls(bool display) {
-    ssd1306_clear_display(&global_display->ctx);
+    ssd1306_clear_display(&pdnd_global_display->ctx);
     if(display) {
-        ssd1306_display(&global_display->ctx);
+        ssd1306_display(&pdnd_global_display->ctx);
     }
 }
 
 void pprintf(const char *format, ...) {
     va_list args;
     va_start(args, format);
-    pdnd_display_printf(global_display, 0, DEFAULT_FONT_Y, format, args);
+    pdnd_display_printf(pdnd_global_display, 0, DEFAULT_FONT_Y, format, args);
     va_end(args);
     
-    ssd1306_display(&global_display->ctx);
+    ssd1306_display(&pdnd_global_display->ctx);
 }
 
-void pprintfxy(uint8_t x, uint8_t y, const char *format, va_list args) {
-    pdnd_display_printf(global_display, x, y, format, args);
-    ssd1306_display(&global_display->ctx);
+void pprintfxy(uint8_t x, uint8_t y, const char *format, ...) {
+    va_list args;
+    va_start(args, format);
+    pdnd_display_printf(pdnd_global_display, x, y, format, args);
+    va_end(args);
+    ssd1306_display(&pdnd_global_display->ctx);
 }
