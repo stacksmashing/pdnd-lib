@@ -11,6 +11,8 @@ typedef struct {
     ssd1306_context ctx;
 } pdnd_display;
 
+pdnd_display *global_display;
+
 typedef struct {
     uint32_t width;
     uint32_t height;
