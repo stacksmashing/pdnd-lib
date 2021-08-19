@@ -9,6 +9,15 @@
 #define WIDTH 128
 #define HEIGHT 64
 
+// set this flag when using the SH1106 display
+// #define OLED_SH1106
+
+#ifdef OLED_SH1106
+#define COLUMN_OFFSET 0x02
+#else
+#define COLUMN_OFFSET 0x00
+#endif
+
 const uint8_t i2caddr = 0x3c;
 static uint8_t contrast = 0x0;
 
@@ -96,48 +105,28 @@ void ssd1306_draw_bitmap(ssd1306_context *ctx, int16_t x, int16_t y, const uint8
 
 
 void ssd1306_display(ssd1306_context *ctx) {
-  static const uint8_t dlist1[] = {
-      SSD1306_PAGEADDR,
-      0,                      // Page start address
-      0xFF,                   // Page end (not really, but works here)
-      SSD1306_COLUMNADDR, 0}; // Column start address
-  ssd1306_command_list(ctx, dlist1, sizeof(dlist1));
-  ssd1306_command1(ctx, WIDTH - 1); // Column end address
-
-  uint16_t count = WIDTH * ((HEIGHT + 7) / 8);
+  static uint8_t pageCommands[] = {
+      0xB0,                  // page 0, set to 0xB0 + actual page index!
+      0x00 | COLUMN_OFFSET,  // lower columns address = 0x00 for ssd1306, 0x02 for sh1106
+      0x10 | 0x00            // upper columns address = 0x00
+  };
+  
+  uint16_t pages = ((HEIGHT + 7) / 8);
   uint8_t *ptr = ctx->buffer;
 
-  char *lolbuffer = malloc(count+1);
-  lolbuffer[0] = 0x40;
-  memcpy(&lolbuffer[1], ctx->buffer, count);
-  pio_i2c_write_blocking(ctx->pio, ctx->sm, i2caddr, lolbuffer, count+1);
-  free(lolbuffer);
+  char *pageBuffer = malloc(1 + WIDTH);
+  memset(pageBuffer, 0x00, 1 + WIDTH);
+  pageBuffer[0] = 0x40; // indicate this is data instead of command
 
+  for (uint16_t row=0; row<pages; row++) {
+    pageCommands[0] = 0xB0 + row; // set page index
+    ssd1306_command_list(ctx, pageCommands, sizeof(pageCommands));
 
-//   if (wire) { // I2C
-//     wire->beginTransmission(i2caddr);
-//     WIRE_WRITE((uint8_t)0x40);
-//     uint16_t bytesOut = 1;
-//     while (count--) {
-//       if (bytesOut >= WIRE_MAX) {
-//         wire->endTransmission();
-//         wire->beginTransmission(i2caddr);
-//         WIRE_WRITE((uint8_t)0x40);
-//         bytesOut = 1;
-//       }
-//       WIRE_WRITE(*ptr++);
-//       bytesOut++;
-//     }
-//     wire->endTransmission();
-//   } else { // SPI
-//     SSD1306_MODE_DATA
-//     while (count--)
-//       SPIwrite(*ptr++);
-//   }
-//   TRANSACTION_END
-// #if defined(ESP8266)
-//   yield();
-// #endif
+    memcpy(&pageBuffer[1], ptr + (row * WIDTH), WIDTH);
+    pio_i2c_write_blocking(ctx->pio, ctx->sm, i2caddr, pageBuffer, 1 + WIDTH);
+  }
+
+  free(pageBuffer);
 }
 /*!
     @brief  Allocate RAM for image buffer, initialize peripherals and pins.
