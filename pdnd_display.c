@@ -5,7 +5,6 @@
 
 #include "display/font_renderer.h"
 #include "display/ssd1306.h"
-#include "pio/pio_i2c.h"
 
 #define PIN_SDA 20
 #define PIN_SCL 21
@@ -22,16 +21,12 @@ void pdnd_display_initialize() {
 }
 
 void pdnd_display_create(pdnd_display *display) {
-    PIO pio = pio0;
-    uint sm = 0;
-    
-    uint offset = pio_add_program(pio, &i2c_program);
-    i2c_program_init(pio, sm, offset, PIN_SDA, PIN_SCL);
-
+    gpio_set_function(PIN_SDA, GPIO_FUNC_I2C);
+    gpio_set_function(PIN_SCL, GPIO_FUNC_I2C);
+    i2c_init(i2c0, 100000);
 
     ssd1306_context ctx;
-    ctx.pio = pio;
-    ctx.sm = sm;
+    ctx.i2c = i2c0;
 
     ssd1306_begin(&ctx, SSD1306_SWITCHCAPVCC);
     ssd1306_clear_display(&ctx);

@@ -1,11 +1,10 @@
 #pragma once
 
 #include "pico/stdlib.h"
-#include "../pio/pio_i2c.h"
+#include "hardware/i2c.h"
 
 typedef struct {
-    PIO pio;
-    uint sm;
+    i2c_inst_t* i2c;
     uint8_t *buffer;
 } ssd1306_context;
 

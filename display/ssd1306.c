@@ -34,7 +34,7 @@ static void ssd1306_command_list(ssd1306_context *ctx, const uint8_t *c, uint8_t
   char *b = malloc(n+1);
   b[0] = 0x0;
   memcpy(&b[1], c, n);
-  pio_i2c_write_blocking(ctx->pio, ctx->sm, i2caddr, b, n+1);
+  i2c_write_blocking(ctx->i2c, i2caddr, b, n+1, true);
   free(b);
 }
 
@@ -42,7 +42,7 @@ static void ssd1306_command1(ssd1306_context *ctx, uint8_t c) {
   char f[2];
   f[0] = 0x0;
   f[1] = c;
-  pio_i2c_write_blocking(ctx->pio, ctx->sm, i2caddr, f, 2);
+  i2c_write_blocking(ctx->i2c, i2caddr, f, 2, true);
 }
 
 void ssd1306_write_pixel(ssd1306_context *ctx, int16_t x, int16_t y, uint16_t color) {
@@ -110,7 +110,7 @@ void ssd1306_display(ssd1306_context *ctx) {
   char *lolbuffer = malloc(count+1);
   lolbuffer[0] = 0x40;
   memcpy(&lolbuffer[1], ctx->buffer, count);
-  pio_i2c_write_blocking(ctx->pio, ctx->sm, i2caddr, lolbuffer, count+1);
+  i2c_write_blocking(ctx->i2c, i2caddr, lolbuffer, count+1, true);
   free(lolbuffer);
 
 

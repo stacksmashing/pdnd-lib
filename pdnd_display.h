@@ -3,6 +3,7 @@
 #include <stdarg.h>
 #include "display/ssd1306.h"
 #include "display/FreeSans5pt7b.h"
+#include "hardware/i2c.h"
 
 #define DEFAULT_FONT FreeSans7pt7b
 #define DEFAULT_FONT_Y 10
