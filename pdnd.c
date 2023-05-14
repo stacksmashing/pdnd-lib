@@ -62,7 +62,7 @@ void pdnd_configure_input(int i) {
 }
 
 void pdnd_configure_output(int i) {
-    int pin = pdnd_in(i);
+    int pin = pdnd_out(i);
     gpio_init(pin);
     gpio_set_dir(pin, GPIO_OUT);
 }
