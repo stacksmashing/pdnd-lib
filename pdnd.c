@@ -56,7 +56,7 @@ void pdnd_enable_buffers(bool enable) {
 }
 
 void pdnd_configure_input(int i) {
-    int pin = pdnd_in(i);
+    int pin = pdnd_in_pin(i);
     gpio_init(pin);
     gpio_set_dir(pin, GPIO_IN);
 }
